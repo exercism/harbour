@@ -1,0 +1,32 @@
+{
+  "docs": [
+    {
+      "uuid": "6bc1562b-ec6a-46fd-a906-c7404e1e4cbb",
+      "slug": "installation",
+      "path": "docs/INSTALLATION.md",
+      "title": "Installing Harbour locally",
+      "blurb": "Learn how to install Harbour locally to solve Exercism's exercises on your own machine"
+    },
+    {
+      "uuid": "80c97305-7f09-49b4-9bd2-3b3ed3f12386",
+      "slug": "learning",
+      "path": "docs/LEARNING.md",
+      "title": "How to learn Harbour",
+      "blurb": "An overview of how to get started from scratch with Harbour"
+    },
+    {
+      "uuid": "6119fa69-1c9c-4b4f-989d-ff7622b73837",
+      "slug": "tests",
+      "path": "docs/TESTS.md",
+      "title": "Testing on the Harbour track",
+      "blurb": "Learn how to test your Harbour exercises on Exercism"
+    },
+    {
+      "uuid": "1356a3a7-f137-46c1-abfe-d7d174b4df78",
+      "slug": "resources",
+      "path": "docs/RESOURCES.md",
+      "title": "Useful Harbour resources",
+      "blurb": "A collection of useful resources to help you master Harbour"
+    }
+  ]
+}
