@@ -1,0 +1,262 @@
+#!/usr/bin/env bash
+
+# -----------------------------------------------------------------------------
+# Exercism practice exercise generator for the Harbour language track.
+#
+# $1 -> action to perform (remove, create, or configure exercise)
+# $2 -> name of the exercise subdirectory
+#
+# The script creates, removes, and configures a subdirectory, corresponding
+#  to the nominated exercises, in the following directory:
+#
+#     TRACKNAME/exercises/practice/
+#
+# Exercise creation sees a skeleton subdirectory entry made, while removal
+#  completely removes the subdirectory (and any contents therein). Exercise
+#  configuration sees the generation of several custom files, as well as the
+#  copying of several standard files.
+#
+# Exercise subdirectory structure and contents:
+#
+#     <exercise>/
+#        ¦   <exercise>_test.prg               Test Harness (tests reside here)
+#        ¦   <exercise>.prg                    Exercise Stub
+#        ¦   PRGUNIT.prg                       Test Library
+#        ¦   utils.prg                         Support Library
+#        ¦
+#        +---.docs
+#        ¦       instructions.md
+#        ¦
+#        +---.meta
+#                config.json
+#                example.prg                   Example Solution
+#                tests.toml
+#
+# Several prerequisites must be satisfied to effectively use this script:
+#
+# 0. A valid exercise entry must reside in TRACKNAME/config.json. For the
+#     hello-world exercise, this may look like:
+#
+#     "practice": [
+#       {
+#         "slug": "hello-world",
+#         "name": "Hello World",
+#         "uuid": "5d47e248-c75b-4e4d-2786-862428dda79d",
+#         "practices": [],
+#         "prerequisites": [],
+#         "difficulty": 1
+#       },
+#       ...
+#     ]
+#
+#    Note that `configlet uuid` would have been previously executed to create
+#     the UUID value.
+#
+# 1. The literal within the script, AUTHOR_NAME_HERE, should be replaced with
+#     your Github user name, a once-only task.
+#
+# 2. Script must reside in TRACKNAME/bin/ (and have execute permissions)
+#
+# 3. A complete <exercise>.prg must reside in TRACKNAME/
+#
+# 4. TRACKNAME/ is the current directory
+#
+# The creation of a new exercise (hello-world), is effected:
+#
+#     bin/make-exercise create hello-world
+#
+# Output will be quite busy, and includes `configlet` output, as well as
+#  several instructions.
+#
+# At any time the exercise may be removed:
+#
+#     bin/make-exercise remove hello-world
+#
+# Once created, an exercise may be configured, meaning that all necessary
+#  files are generated and copied:
+#
+#     bin/make-exercise configure hello-world
+#
+# Silence implies success, otherwise an informative message will be
+#  printed. The test harness:
+#
+#     hello_world_test.prg
+#
+# contains the tests in raw form, but they must be massaged so as to execute
+#  correctly.
+#
+# -----------------------------------------------------------------------------
+
+# ---- FUNCTIONS
+
+remove_exercise() {
+    # Override any previous setting with function argument
+    local exercise=${1}
+
+    # Ensure exercise directories removed
+    rm -fr exercises/practice/$exercise
+
+    # Ensure exercise directories removed
+    [ -d exercises/practice/$exercise ] \
+        && { echo "ERROR: Error removing exercise directory" ; exit 1 ; }
+}
+
+create_exercise() {
+    # Override any previous setting with function argument
+    local exercise=${1}
+
+    # Ensure configlet utility exists
+    which configlet >/dev/null \
+        || { echo "ERROR: configlet utility not in PATH" ; exit 1 ; }
+
+    # Create practice exercise skeleton
+    configlet -v d sync --exercise ${exercise} --docs --update --yes --offline
+    configlet -v d sync --exercise ${exercise} --metadata --update --yes --offline
+    configlet -v d sync --exercise ${exercise} --tests include --update --offline
+
+    # Ensure exercise directories created
+    [ -d exercises/practice/$exercise ] \
+        || { echo "ERROR: Error creating exercise directory" ; exit 1 ; }
+}
+
+configure_exercise() {
+    # Override any previous setting with function argument
+    local exercise=${1}
+
+    # Set the author name
+    local author=AUTHOR_NAME_HERE
+
+    # Ensure exercise directories exist
+    [ -d exercises/practice/$exercise ] \
+        || { echo "ERROR: Exercise directory does not exist" ; exit 1 ; }
+
+    # Relocate into practice exercise directory
+    pushd exercises/practice/${exercise} 2>&1 >/dev/null
+
+    # Copy source file here from top-level
+    cp -p ../../../"${exercise//-/_}.prg" .
+
+    # Copy test harness from top-level (***TEMPORARY***)
+    cp -p ../../../"${exercise//-/_}_test.prg" .
+
+    # Copy unit test framework files (reside in top-level `bin` directory)
+    cp -p ../../../bin/PRGUNIT.prg ../../../bin/utils.prg ./
+
+    # Transform exercise metafiles
+    pushd .meta 2>&1 >/dev/null
+
+    ## Transform local config.json
+    sed -r -f - config.json > config.json.NEW <<-SED_SCRIPT
+        s/("authors": )(\[)(\]),/\1\2"${author}"\3,/
+        s/("solution": )(\[)(\]),/\1\2"${exercise//-/_}.prg"\3,/
+        s/("test": )(\[)(\]),/\1\2"${exercise//-/_}_test.prg"\3,/
+        s/("example": )(\[)(\])/\1\2"\.meta\/example\.prg"\3/
+SED_SCRIPT
+    [ $? -eq 0 ] \
+        && { rm -f config.json ; mv config.json.NEW config.json ; } \
+        || { rm -f config.json.NEW ; }
+
+    # Create unit test file
+    ## Generate file header
+    cat <<- PRG_SCRIPT > ${exercise//-/_}_test.prg
+* ----------------------------------------------------------------------------
+* Harbour Unit Test Runner [${exercise//-/_}.prg]
+* ----------------------------------------------------------------------------
+
+* Variable declarations
+memvar TESTS, SUCCESS
+
+* Test database name
+TESTS := IIF(PCOUNT() > 0, hb_PValue(1), "TESTS")
+
+* Create tests database
+do MakeTestDatabase with TESTS
+
+* Add test data into tests database. Each test case stub should be altered
+*  to follow this format:
+*
+* do AddTestDatabase with TESTS, "say Hi!", "==", "Hello, World!", "HelloWorld()"
+* do AddTestDatabase with TESTS, "add 5 and 3", "==", "8", "Add_5_And_3(5, 3)"
+*
+* Note:
+*  1st field is the test description (already supplied)
+*  2nd field is comparator operator, usually "=="
+*  3rd field is the function return result, always written as a string
+*  4th field is the function (optionally with arguments), always written as a string
+*
+
+PRG_SCRIPT
+
+    ## Generate test case stubs
+    grep '^description' tests.toml | sed 's/description = /do AddTestDatabase with TESTS, /' >> ${exercise//-/_}_test.prg
+
+    ## Generate file footer
+    cat <<- PRG_SCRIPT >> ${exercise//-/_}_test.prg
+
+* Execute unit tests. Arguments:
+* - Tests database name
+* - Database retention flag (.T. to not delete test database on test end)
+* - JSON output flag (.T. to emit test results in JSON format [default is TAP])
+SUCCESS := RunTests(TESTS, SToBool(hb_PValue(2)), SToBool(hb_PValue(3)))
+
+* Return success status to OS
+ERRORLEVEL(IIF(SUCCESS, 0, 1))
+
+* Code under test (CUT)
+#include "${exercise//-/_}.prg"
+
+* Unit Test Framework
+#include "PRGUNIT.prg"
+PRG_SCRIPT
+
+    ## Move generated file to parent exercise directory
+    mv ${exercise//-/_}_test.prg ../
+
+    ## Copy source file here as the example file
+    cp -p ../${exercise//-/_}.prg example.prg
+
+    # Emit CONFIGURATION TODO instructions
+    echo 'To complete configuration:'
+    echo '1. Edit' ${exercise//-/_}_test.prg 'correcting test assertions.'
+    echo '2. Edit' ${exercise//-/_}.prg 'converting it to an exercise stub file.'
+
+    # Return to parent
+    popd 2>&1 >/dev/null
+
+    # Return to top-level
+    popd 2>&1 >/dev/null
+}
+
+# ---- ENTRY POINT
+
+# Two arguments expected
+[ $# -ne 2 -o -z "${1}" -o -z "${2}" ] \
+    && { echo "Usage: ${0} remove|create|configure exercise" ; exit 1 ; }
+
+# Uppercase `mode` for easier comparison
+mode="${1^^}" ; exercise="${2}"
+
+# Ascertain script location is `bin`
+[ "$(basename $(dirname ${0}))" == "bin" ] \
+    || { echo "ERROR: Current script must reside in bin directory" ; exit 1 ; }
+
+# Ascertain current directory is top-level by checking for directories
+[ -d "./bin" -a -d "./exercises/practice" ] \
+    || { echo "ERROR: Current directory is not top-level directory" ; exit 1 ; }
+
+# Ensure exercise source file exists
+[ -f "${exercise//-/_}.prg" ] \
+    || { echo "ERROR: Ensure source file resides in current directory" ; exit 1 ; }
+
+# Ensure top-level `config.json` contains a valid exercise entry
+grep -q '"slug": "'${exercise}'",$' config.json \
+    || { echo "ERROR: Include entry for ${exercise} in top-level config.json file." ; exit 1 ; }
+
+# Check `mode` validity
+case "${mode}" in
+    REMOVE)    remove_exercise "${exercise}" ;;
+    CREATE)    create_exercise "${exercise}" ;;
+    CONFIGURE) configure_exercise "${exercise}" ;;
+    *) echo "Usage: ${0} remove|create|configure exercise" ; exit 1 ;;
+esac
+
