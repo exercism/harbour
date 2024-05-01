@@ -1,0 +1,11 @@
+{
+  "authors": ["ajborla"],
+  "files": {
+    "solution": ["hamming.prg"],
+    "test": ["hamming_test.prg"],
+    "example": [".meta/example.prg"]
+  },
+  "blurb": "Calculate the Hamming difference between two DNA strands.",
+  "source": "The Calculating Point Mutations problem at Rosalind",
+  "source_url": "https://rosalind.info/problems/hamm/"
+}
