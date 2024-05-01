@@ -1,5 +1,5 @@
 {
-  "authors": ["AUTHOR_NAME_HERE"],
+  "authors": ["ajborla"],
   "files": {
     "solution": ["hello_world.prg"],
     "test": ["hello_world_test.prg"],
