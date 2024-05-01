@@ -1,0 +1,11 @@
+{
+  "authors": ["ajborla"],
+  "files": {
+    "solution": ["leap.prg"],
+    "test": ["leap_test.prg"],
+    "example": [".meta/example.prg"]
+  },
+  "blurb": "Given a year, report if it is a leap year.",
+  "source": "CodeRanch Cattle Drive, Assignment 3",
+  "source_url": "https://coderanch.com/t/718816/Leap"
+}
