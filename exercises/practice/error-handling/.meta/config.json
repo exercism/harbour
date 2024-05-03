@@ -1,0 +1,9 @@
+{
+  "authors": ["ajborla"],
+  "files": {
+    "solution": ["error_handling.prg"],
+    "test": ["error_handling_test.prg"],
+    "example": [".meta/example.prg"]
+  },
+  "blurb": "Implement various kinds of error handling and resource management."
+}
