@@ -129,6 +129,14 @@
         "practices": [],
         "prerequisites": [],
         "difficulty": 3
+      },
+      {
+        "slug": "raindrops",
+        "name": "Raindrops",
+        "uuid": "12ff6489-0f34-4403-a492-6160225bcdde",
+        "practices": [],
+        "prerequisites": [],
+        "difficulty": 2
       }
     ]
   },
