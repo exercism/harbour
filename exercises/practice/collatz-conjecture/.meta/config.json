@@ -1,5 +1,5 @@
 {
-  "authors": ["Anthony J. Borla"],
+  "authors": ["ajborla"],
   "files": {
     "solution": ["collatz_conjecture.prg"],
     "test": ["collatz_conjecture_test.prg"],
