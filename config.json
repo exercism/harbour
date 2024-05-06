@@ -161,6 +161,14 @@
         "practices": [],
         "prerequisites": [],
         "difficulty": 4
+      },
+      {
+        "slug": "scrabble-score",
+        "name": "Scrabble Score",
+        "uuid": "252bec85-414e-4f2f-b556-9c0d8b71a18c",
+        "practices": [],
+        "prerequisites": [],
+        "difficulty": 3
       }
     ]
   },
