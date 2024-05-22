@@ -13,7 +13,7 @@
 # Requires scripts:
 # - bin/test
 
-name: <track> / Test
+name: harbour / Test
 
 on:
   push:
@@ -23,17 +23,19 @@ on:
 
 jobs:
   ci:
-    runs-on: <image-name>
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
 
-      - name: Use <setup tooling>
-        uses: <action to setup tooling>
-
-      - name: Install project dependencies
-        run: <install dependencies>
+      - name: Install Harbour
+        run: |
+            sudo apt update
+            sudo apt -y install curl libpcre3-dev libpcre3 libssl-dev
+            sudo apt -y install libslang2-dev libgpm-dev libncurses5-dev libncursesw5-dev
+            curl -LJO https://raw.githubusercontent.com/ajborla/download-harbour-deb/main/harbour_3.2.0-1_amd64.deb
+            sudo apt -y install ./harbour_3.2.0-1_amd64.deb
 
       - name: Verify all exercises
         run: bin/verify-exercises
