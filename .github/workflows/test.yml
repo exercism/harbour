@@ -32,7 +32,6 @@ jobs:
       - name: Install Harbour
         run: |
             sudo apt update
-            sudo apt upgrade
             sudo apt -y install libc6-dev
             sudo apt -y install curl libpcre3-dev libpcre3 libssl-dev
             sudo apt -y install libslang2-dev libgpm-dev libncurses5-dev libncursesw5-dev
