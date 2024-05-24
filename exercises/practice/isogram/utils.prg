@@ -25,20 +25,29 @@ return string
 function SToArr(string, separator)
    local array := {}, i, element
 
-   * Return untouched string if no separator, or it is not in string
-   if PCOUNT() < 2 .OR. separator == NIL ; return string ; endif
-   i := AT(separator, string) ; if i == 0 ; return string ; endif
+   * Return string untouched if empty
+   if string == NIL .OR. string == '' ; return string ; endif
 
-   * Parse the string, extracting each element, and adding to array
-   do while i <> 0
-      element := LEFT(string, i - 1)
-      if !EMPTY(element) ; AADD(array, element) ; endif
-      string := SUBSTR(string, i + 1)
-      i := AT(separator, string)
-   enddo
+   * Split string into an array of single characters if no separator supplied
+   if PCOUNT() < 2 .OR. separator == NIL .OR. separator == ''
+      for i = 1 to LEN(string)
+         AADD(array, SUBSTR(string, i, 1))
+      next
+   else
+      * Return untouched string if separator not in string
+      i := AT(separator, string) ; if i == 0 ; return string ; endif
 
-   * Handle last element, and return array
-   if !EMPTY(string) ; AADD(array, string) ; endif
+      * Parse the string, extracting each element, and adding to array
+      do while i <> 0
+         element := LEFT(string, i - 1)
+         if !EMPTY(element) ; AADD(array, element) ; endif
+         string := SUBSTR(string, i + 1)
+         i := AT(separator, string)
+      enddo
+
+      * Handle last element, and return array
+      if !EMPTY(string) ; AADD(array, string) ; endif
+   endif
 return array
 
 *
