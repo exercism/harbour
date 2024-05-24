@@ -97,6 +97,11 @@ function RunTests(dbfName, keepTestDBF, outputJSON)
       skip
    enddo
 
+   * Emit final newline for neater output - TAP
+   if outputJSON == NIL .OR. !outputJSON
+      ?
+   endif
+
    close &dbfName
 
    * If the parameter flag, keepTestDBF, is omitted, or set to .F., then
