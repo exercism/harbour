@@ -18,7 +18,7 @@ function Roman(n)
    if n < 1 .OR. n > 3999 ; return NIL ; endif
 
    * Extract 4 rightmost digits from zero-padded digit string
-   digits := RIGHT("000" + LTRIM(STR(n)), 4)
+   digits := SToArr(RIGHT("000" + LTRIM(STR(n)), 4))
 
    * Map digits to Roman numeral values
    M := SToArr(".;M;MM;MMM", ";")[VAL(digits[1])+1]
