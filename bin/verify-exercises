@@ -35,7 +35,7 @@ verify_practice_exercise() {
         # Create implementation file from example
         rm -f "${exercise//-/_}".prg && mv example.prg "${exercise//-/_}".prg
         # Run tests, and collect result code
-        hbrun "${exercise//-/_}_test.prg"
+        hbrun "${exercise//-/_}_test.prg" 2>/dev/null
         local result=$?
     popd 2>&1 >/dev/null
     # Cleanup and return result code
