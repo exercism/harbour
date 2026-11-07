@@ -1,0 +1,13 @@
+function MostCommonWord(cText)
+   local hCounts := { => }, cBest := "", nBest := 0, cWord, nCount
+
+   for each cWord in hb_ATokens(Lower(cText), " ")
+      nCount := hb_HGetDef(hCounts, cWord, 0) + 1
+      hCounts[cWord] := nCount
+      if nCount > nBest
+         cBest := cWord
+         nBest := nCount
+      endif
+   next
+
+   return '"' + cBest + '" appears ' + hb_ntos(nBest) + " times"
